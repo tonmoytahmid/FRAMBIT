@@ -61,101 +61,105 @@ class _SettingpageState extends State<Settingpage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xFF6A00FF),
-        iconTheme: IconThemeData(color: Colors.white),
-        title: Row(
-          children: const [
-            Text(
-              "Settings",
-              style: TextStyle(color: Colors.white),
+    return Container(
+      decoration: BoxDecoration(
+          image: DecorationImage(
+              image: AssetImage("images/backgroundimage.png"),
+              fit: BoxFit.cover)),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          
+          backgroundColor: Colors.transparent,
+          iconTheme: IconThemeData(color: Colors.white,weight: 40,size: 40),
+          centerTitle:true,
+          title: Text(
+            "Settings",
+            style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
+          ),
+        ),
+        body: Column(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundImage: NetworkImage(
+                      userImage ??
+                          'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0',
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        userName ?? '[Display Name]',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        userEmail ?? '[Email]',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Expanded(
+              child: ListView(
+                children: [
+                  OptionItem(
+                    label: 'Change Password',
+                    onTap: () {
+                      Get.to(() => ForgotpasswordPage());
+                    },
+                  ),
+                  OptionItem(
+                    label: 'Privacy Policy',
+                    onTap: () =>
+                        _launchURL('https://frambit.link/privacy-policy/'),
+                  ),
+                  OptionItem(
+                      label: 'Need support or help?',
+                      onTap: () {
+                        _launchURL('https://frambit.link/contact/');
+                      }),
+                  SizedBox(height: 20),
+                  Center(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await FirebaseAuth.instance.signOut();
+                        await GoogleSignIn().signOut();
+                        Get.offAll(() => const Statechange());
+                      },
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.black,
+                        backgroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 32, vertical: 12),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          side: BorderSide(color: Colors.grey.shade300),
+                        ),
+                      ),
+                      child: const Text('Log Out'),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
-      ),
-      body: Column(
-        children: [
-          Container(
-            color: Color(0xFF6A00FF),
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundImage: NetworkImage(
-                    userImage ??
-                        'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0',
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      userName ?? '[Display Name]',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      userEmail ?? '[Email]',
-                      style: const TextStyle(
-                        color: Colors.white70,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: ListView(
-              children: [
-                OptionItem(
-                  label: 'Change Password',
-                  onTap: () {
-                    Get.to(() => ForgotpasswordPage());
-                  },
-                ),
-                OptionItem(
-                  label: 'Privacy Policy',
-                  onTap: () =>
-                      _launchURL('https://frambit.link/privacy-policy/'),
-                ),
-                OptionItem(
-                    label: 'Need support or help?',
-                    onTap: () {
-                      _launchURL('https://frambit.link/contact/');
-                    }),
-                SizedBox(height: 20),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      await FirebaseAuth.instance.signOut();
-                      await GoogleSignIn().signOut();
-                      Get.offAll(() => const Statechange());
-                    },
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.black,
-                      backgroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 32, vertical: 12),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        side: BorderSide(color: Colors.grey.shade300),
-                      ),
-                    ),
-                    child: const Text('Log Out'),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
       ),
     );
   }

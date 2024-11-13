@@ -21,44 +21,70 @@ class CardWidget extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsets.only(bottom: 40, top: 20),
+          padding: const EdgeInsets.only(top: 40, bottom: 40),
           child: Container(
             padding: EdgeInsets.all(16),
-            width: screenWidth * 0.8,
-            height: screenHeight * 0.3,
+            width: screenWidth * 0.85,
+            height: screenHeight * 0.30,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
-              color: const Color.fromARGB(255, 116, 50, 231),
-              image: DecorationImage(
-                image: AssetImage("images/card_image.jpg"),
-                fit: BoxFit.cover,
-                colorFilter: ColorFilter.mode(
-                  Colors.black.withOpacity(0.3),
-                  BlendMode.darken,
-                ),
+              gradient: LinearGradient(
+                colors: [Color(0xFF6A00FF), Color(0xFF181818)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black26,
+                  blurRadius: 10,
+                  offset: Offset(0, 4),
+                ),
+              ],
             ),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  categoryLabel,
-                  style: TextStyle(
-                    fontSize: screenWidth * 0.05,
-                    color: Colors.white,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Image.asset(
+                      "images/Farmbit.png",
+                      height: 30,
+                    ),
+                    Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.black45,
+                        ),
+                        child: Image.asset(
+                          "images/Blacklogo.jpg",
+                          height: 40,
+                        )),
+                  ],
                 ),
-                SizedBox(height: screenHeight * 0.01),
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: screenWidth * 0.05,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+                Spacer(),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      categoryLabel,
+                      style: TextStyle(
+                        fontSize: screenWidth * 0.04,
+                        color: Colors.white,
+                      ),
+                    ),
+                    SizedBox(height: screenHeight * 0.005),
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: screenWidth * 0.045,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: screenHeight * 0.01),
                 Align(
                   alignment: Alignment.centerRight,
                   child: Icon(

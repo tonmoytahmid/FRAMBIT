@@ -32,6 +32,7 @@ class _CategoryImagesPageState extends State<CategoryImagesPage> {
 
   late BannerAd bannerAd;
 
+  // ignore: non_constant_identifier_names
   IntializeBannerad() async {
     bannerAd = BannerAd(
       size: AdSize.banner,
@@ -72,65 +73,74 @@ class _CategoryImagesPageState extends State<CategoryImagesPage> {
     // ignore: unused_local_variable
     final screenHeight = MediaQuery.of(context).size.height;
 
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xFF6A00FF),
-        iconTheme: IconThemeData(color: Colors.white),
-        title: Text(
-          widget.category,
-          style: TextStyle(color: Colors.white),
+    return Container(
+      decoration: BoxDecoration(
+          image: DecorationImage(
+              image: AssetImage("images/backgroundimage.png"),
+              fit: BoxFit.cover)),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+          iconTheme: IconThemeData(color: Colors.white,weight: 40,size:40),
+          title: Text(
+            widget.category,
+            style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
+          ),
         ),
-      ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('product_name')
-            .where('category', isEqualTo: widget.category)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
-          }
-
-          List<String> imageUrls = [];
-          List<String> pageLinks = [];
-
-          for (var doc in snapshot.data!.docs) {
-            // Fetch the image URL and page link
-            String imageUrl = doc['imageurl_link'] ?? '';
-            String pageLink = doc['pageurl_link'] ?? '';
-
-            // Only add valid URLs
-            if (imageUrl.isNotEmpty &&
-                Uri.tryParse(imageUrl)?.hasScheme == true) {
-              imageUrls.add(imageUrl);
+        body: StreamBuilder<QuerySnapshot>(
+          stream: FirebaseFirestore.instance
+              .collection('product_name')
+              .where('category', isEqualTo: widget.category)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return Center(child: CircularProgressIndicator());
             }
 
-            if (pageLink.isNotEmpty &&
-                Uri.tryParse(pageLink)?.hasScheme == true) {
-              pageLinks.add(pageLink);
+            List<String> imageUrls = [];
+            List<String> pageLinks = [];
+
+            for (var doc in snapshot.data!.docs) {
+              // Fetch the image URL and page link
+              String imageUrl = doc['imageurl_link'] ?? '';
+              String pageLink = doc['pageurl_link'] ?? '';
+
+              // Only add valid URLs
+              if (imageUrl.isNotEmpty &&
+                  Uri.tryParse(imageUrl)?.hasScheme == true) {
+                imageUrls.add(imageUrl);
+              }
+
+              if (pageLink.isNotEmpty &&
+                  Uri.tryParse(pageLink)?.hasScheme == true) {
+                pageLinks.add(pageLink);
+              }
             }
-          }
 
-          // Check if we have images to display
-          if (imageUrls.isEmpty) {
-            return Center(child: Text('No images available for this category'));
-          }
+            // Check if we have images to display
+            if (imageUrls.isEmpty) {
+              return Center(
+                  child: Text('No images available for this category',style: TextStyle(color: Colors.white),));
+            }
 
-          return SwipableImageStack(
-              imageUrls: imageUrls,
-              pageLinks: pageLinks,
-              isAdLoaded: isAdlodad,
-              bannerAd: bannerAd,
-              screenWidth: screenWidth);
-        },
+            return SwipableImageStack(
+                imageUrls: imageUrls,
+                pageLinks: pageLinks,
+                isAdLoaded: isAdlodad,
+                bannerAd: bannerAd,
+                screenWidth: screenWidth);
+          },
+        ),
+        bottomNavigationBar: isAdlodad == true
+            ? SizedBox(
+                height: bannerAd.size.height.toDouble(),
+                width: bannerAd.size.width.toDouble(),
+                child: AdWidget(ad: bannerAd),
+              )
+            : const SizedBox.shrink(),
       ),
-      bottomNavigationBar: isAdlodad == true
-          ? SizedBox(
-              height: bannerAd.size.height.toDouble(),
-              width: bannerAd.size.width.toDouble(),
-              child: AdWidget(ad: bannerAd),
-            )
-          : const SizedBox.shrink(),
     );
   }
 }

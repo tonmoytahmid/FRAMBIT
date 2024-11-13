@@ -45,6 +45,7 @@ dependencies:
   flutter_swiper_view: ^1.1.8
   swipable_stack: ^2.0.0
   google_mobile_ads: ^5.2.0
+  cached_network_image: ^3.4.1
   
   
 

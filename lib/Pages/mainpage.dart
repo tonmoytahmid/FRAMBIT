@@ -18,7 +18,7 @@ class Mainpage extends StatefulWidget {
 class _MainpageState extends State<Mainpage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   GetUserDataController userdata = Get.put(GetUserDataController());
-  User user = FirebaseAuth.instance.currentUser!;
+  User? user = FirebaseAuth.instance.currentUser;
   int _currentIndex = 0;
   List<List<String>> pages = [];
   List<String> categoryLabels = [
@@ -26,41 +26,93 @@ class _MainpageState extends State<Mainpage> {
     "Digital Ideas ❤️",
     "Special 😎"
   ];
+  String? userImage;
+  String? userName;
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserData();
+  }
+
+  Future<void> _fetchUserData() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance
+            .collection('Users')
+            .doc(user.uid)
+            .get();
+
+        if (userDoc.exists) {
+          setState(() {
+            userName = userDoc['Name'];
+
+            userImage = userDoc['image'];
+          });
+        }
+      }
+    } catch (e) {
+      print("Error fetching user data: $e");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        iconTheme: IconThemeData(color: Colors.white),
-        backgroundColor: Color(0xFF6A00FF),
-        title: FutureBuilder<String>(
-          future: userdata.getUsername(user.uid),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Text("Loading...");
-            } else if (snapshot.hasError) {
-              return Text("Error");
-            } else {
-              return Text(
-                "Hello ${snapshot.data}",
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold,color: Colors.white),
-              );
-            }
-          },
+    return Container(
+      decoration: BoxDecoration(
+          image: DecorationImage(
+              image: AssetImage("images/backgroundimage.png"),
+              fit: BoxFit.cover)),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          iconTheme: IconThemeData(color: Colors.white),
+          backgroundColor: Colors.transparent,
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Hello, ${userName ?? '[Display Name]'}!",
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              // FutureBuilder<String>(
+              //   future: userdata.getUsername(user!.uid),
+              //   builder: (context, snapshot) {
+              //     if (snapshot.connectionState == ConnectionState.waiting) {
+              //       return Text("Loading...");
+              //     } else if (snapshot.hasError) {
+              //       return Text("Error");
+              //     } else {
+              //       return Text(
+              //         "Hello, ${snapshot.data}",
+              //         style: TextStyle(
+              //             fontSize: 17,
+              //             fontWeight: FontWeight.bold,
+              //             color: Colors.white),
+              //       );
+              //     }
+              //   },
+              // ),
+              GestureDetector(
+                onTap: () {
+                  Get.to(() => Settingpage());
+                },
+                child: CircleAvatar(
+                  radius: 26,
+                  backgroundImage: NetworkImage(
+                    userImage ??
+                        'https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0',
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Get.to(() => Settingpage());
-            },
-            icon: Icon(
-              Icons.settings,
-              color: Colors.white,
-            ),
-          )
-        ],
-      ),
-      body: SafeArea(
-        child: StreamBuilder<QuerySnapshot>(
+        body: StreamBuilder<QuerySnapshot>(
           stream: _firestore.collection('product_name').snapshots(),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
@@ -85,7 +137,11 @@ class _MainpageState extends State<Mainpage> {
             }
 
             if (pages.isEmpty || _currentIndex >= pages.length) {
-              return Center(child: Text('No categories to display'));
+              return Center(
+                  child: Text(
+                'No categories to display',
+                style: TextStyle(color: Colors.white),
+              ));
             }
 
             return ListView(
@@ -104,15 +160,15 @@ class _MainpageState extends State<Mainpage> {
             );
           },
         ),
-      ),
-      bottomNavigationBar: CustomBottomNavBar(
-        categories: categoryLabels,
-        currentIndex: _currentIndex,
-        onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-        },
+        bottomNavigationBar: CustomBottomNavBar(
+          categories: categoryLabels,
+          currentIndex: _currentIndex,
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+        ),
       ),
     );
   }
@@ -124,39 +180,47 @@ class CustomBottomNavBar extends StatelessWidget {
   final Function(int) onTap;
 
   const CustomBottomNavBar({
-    super.key,
+    Key? key,
     required this.categories,
     required this.currentIndex,
     required this.onTap,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(10),
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: Color(0xFF6A00FF),
-          borderRadius: BorderRadius.all(Radius.circular(20)),
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+      decoration: BoxDecoration(
+        color: Color(0xFF181818),
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30),
         ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: List.generate(categories.length, (index) {
-            bool isSelected = currentIndex == index;
-            return GestureDetector(
-              onTap: () => onTap(index),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: List.generate(categories.length, (index) {
+          bool isSelected = currentIndex == index;
+          return GestureDetector(
+            onTap: () => onTap(index),
+            child: AnimatedContainer(
+              duration: Duration(milliseconds: 300),
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              decoration: BoxDecoration(
+                color: isSelected ? Color(0xFF333333) : Colors.transparent,
+                borderRadius: BorderRadius.circular(25),
+              ),
               child: Text(
                 categories[index],
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
-                  color: isSelected ? Colors.white : Colors.black,
-                  fontSize: 14,
+                  color: isSelected ? Colors.white : Colors.grey,
+                  fontSize: 12,
                 ),
               ),
-            );
-          }),
-        ),
+            ),
+          );
+        }),
       ),
     );
   }
